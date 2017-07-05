@@ -1,1 +1,5 @@
 my_custom_setting = 10
+force_short_threshold = 0.1
+volume_avg_date = 5
+trend_date = 10
+hammer_multiply = 2
