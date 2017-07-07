@@ -12,16 +12,18 @@ method.init = function() {
     this.trend = {
         action: 'short',
         over_buy:0,
-        over_sell:0
+        over_sell:0,
+        previous_K:0,
+        previous_D:0
     };
 
 
     var customStochSettings = {
-        optInFastK_Period:9,
-        optInSlowK_Period:3,
-        optInSlowK_MAType:0,
-        optInSlowD_Period:3,
-        optInSlowD_MAType:0
+        optInFastK_Period:settings.optInFastK_Period,
+        optInSlowK_Period:settings.optInSlowK_Period,
+        optInSlowK_MAType:settings.optInSlowK_MAType,
+        optInSlowD_Period:settings.optInSlowD_Period,
+        optInSlowD_MAType:settings.optInSlowD_MAType
     }
     this.requiredHistory = config.tradingAdvisor.historySize;
 
@@ -41,13 +43,14 @@ method.log = function () {
 
 
 
-method.check = function() {
+method.check = function(candle) {
     // use indicator results
+    if(candle.volume===0) return; // Make sure we don't count when the website is down.
     var result = this.talibIndicators.kdj.result;
-    log.debug(result);
+    // log.debug(result);
     if(this.trend.action==='short'){
-        if(result.outSlowD>=10 || result.outSlowK>=10){
-            if(this.trend.over_buy>=5){
+        if(result.outSlowD>=settings.D_low_level || result.outSlowK>=settings.K_low_level){
+            if(this.trend.over_buy>=settings.period){
                 this.trend.action='long';
                 this.advice('long');
             }
@@ -55,7 +58,7 @@ method.check = function() {
             return;
         }
         
-        if(result.outSlowD<10 && result.outSlowK<10){
+        if(result.outSlowD<settings.D_low_level && result.outSlowK<settings.K_low_level){
             log.debug("People started to overbuy");
             this.trend.over_buy+=1;
             // this.trend.action='long';
@@ -64,19 +67,18 @@ method.check = function() {
 
     }
     else if (this.trend.action==='long'){
-        if(result.outSlowD<=90 || result.outSlowK<=90){
-            if(this.trend.over_sell>=5){
+        if(result.outSlowD<=settings.D_high_level || result.outSlowK<=settings.K_high_level){
+            if(this.trend.over_sell>=settings.period){
                 this.trend.action='short';
                 this.advice('short');
             }
             this.trend.over_sell=0;
             return;
         }
-        if(result.outSlowD>90 && result.outSlowK>90){
+        if(result.outSlowD>settings.D_high_level && result.outSlowK>settings.K_high_level){
             log.debug("Best Sell Point");
             this.trend.over_sell+=1;
         }
     }
-    // do something with macdiff
 };
 module.exports = method;
