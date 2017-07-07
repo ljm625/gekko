@@ -10,7 +10,9 @@ var method = {};
 method.init = function() {
 
     this.trend = {
-        action: 'short'
+        action: 'short',
+        over_buy:0,
+        over_sell:0
     };
 
 
@@ -44,18 +46,35 @@ method.check = function() {
     var result = this.talibIndicators.kdj.result;
     log.debug(result);
     if(this.trend.action==='short'){
+        if(result.outSlowD>=10 || result.outSlowK>=10){
+            if(this.trend.over_buy>=5){
+                this.trend.action='long';
+                this.advice('long');
+            }
+            this.trend.over_buy=0;
+            return;
+        }
+        
         if(result.outSlowD<10 && result.outSlowK<10){
-            log.debug("Best Buy Point");
-            this.trend.action='long';
-            this.advice('long');
+            log.debug("People started to overbuy");
+            this.trend.over_buy+=1;
+            // this.trend.action='long';
+            // this.advice('long');
         }
 
     }
     else if (this.trend.action==='long'){
+        if(result.outSlowD<=90 || result.outSlowK<=90){
+            if(this.trend.over_sell>=5){
+                this.trend.action='short';
+                this.advice('short');
+            }
+            this.trend.over_sell=0;
+            return;
+        }
         if(result.outSlowD>90 && result.outSlowK>90){
             log.debug("Best Sell Point");
-            this.trend.action='short';
-            this.advice('short');
+            this.trend.over_sell+=1;
         }
     }
     // do something with macdiff
