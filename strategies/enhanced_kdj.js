@@ -17,7 +17,7 @@ method.init = function() {
         previous_D:0,
         last_buy_price:0
     };
-
+    this.historyCandle=new Array();
 
     var customStochSettings = {
         optInFastK_Period:settings.optInFastK_Period,
