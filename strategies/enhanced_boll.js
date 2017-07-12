@@ -34,11 +34,15 @@ method.init = function() {
         optInNbDevUp:settings.optInNbDevUp,
         optInNbDevDn:settings.optInNbDevDn,
         optInMAType:settings.optInMAType
-    }
+    };
+    var customVRSettings = {
+        period:24
+    };
     this.requiredHistory = config.tradingAdvisor.historySize;
 
     // add the indicator to the method
     this.addTalibIndicator('boll', 'bbands', customBollSettings);
+    this.addIndicator('vr', 'VR', customVRSettings);
 }
 
 method.update = function (candle) {
@@ -50,13 +54,13 @@ method.update = function (candle) {
         this.historyCandle.unshift(candle);
         this.historyCandle.pop();
     }
-}
+};
 
 // For debugging purposes.
 method.log = function () {
     // log.debug('calculated random number:');
     // log.debug('\t', this.randomNumber.toFixed(3));
-}
+};
 
 
 
@@ -64,7 +68,8 @@ method.check = function(candle) {
     // use indicator results
     if(candle.volume===0) return; // Make sure we don't count when the website is down.
     var result = this.talibIndicators.boll.result;
-    log.debug(result);
+    log.debug(this.indicators.vr.vr);
+    // log.debug(result);
     //   outRealLowerBand
     //   outRealMiddleBand
     //   outRealUpperBand
