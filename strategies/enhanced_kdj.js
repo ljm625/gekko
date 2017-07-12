@@ -68,7 +68,7 @@ method.check = function(candle) {
 
     // log.debug(result);
     if (this.trend.action === 'long') {
-        if ((candle.open + candle.close) / 2 < this.trend.last_buy_price * (1 - settings.force_short_threshold)) {
+        if (candle.vwp < this.trend.last_buy_price * (1 - settings.force_short_threshold)) {
             log.debug("Force selling!");
             this.trend.action = 'short';
             this.advice('short');
@@ -85,20 +85,20 @@ method.check = function(candle) {
     if(this.trend.action==='short'){
         //检测金叉
         //check the volume
-        if(this.trend.last_sell_period!==0 && this.trend.last_sell_period<=settings.sell_last_time) {
-            if (this.trend.previous_D > this.trend.previous_K && result.outSlowD <= result.outSlowK) {
-                // 可能还要涨？
-                log.debug("Buying incase miss the flight");
-                this.trend.action = 'long';
-                this.advice('long');
-                this.trend.last_buy_price = (candle.open + candle.close) / 2;
-                this.trend.last_sell_period=0;
-                this.trend.last_buy_period=0;
-            }
-            else{
-                this.trend.last_sell_period+=1;
-            }
-        }
+        // if(this.trend.last_sell_period!==0 && this.trend.last_sell_period<=settings.sell_last_time) {
+        //     if (this.trend.previous_D > this.trend.previous_K && result.outSlowD <= result.outSlowK) {
+        //         // 可能还要涨？
+        //         log.debug("Buying incase miss the flight");
+        //         this.trend.action = 'long';
+        //         this.advice('long');
+        //         this.trend.last_buy_price = candle.vwp;
+        //         this.trend.last_sell_period=0;
+        //         this.trend.last_buy_period=0;
+        //     }
+        //     else{
+        //         this.trend.last_sell_period+=1;
+        //     }
+        // }
 
         if(result.outSlowD>=settings.D_low_level && result.outSlowK>=settings.K_low_level){
             this.trend.over_buy=0;
@@ -115,7 +115,7 @@ method.check = function(candle) {
                     if(this.trend.over_buy>=settings.period){
                         this.trend.action='long';
                         this.advice('long');
-                        this.trend.last_buy_price=(candle.open + candle.close)/2;
+                        this.trend.last_buy_price=candle.vwp;
                         this.trend.last_buy_period=1;
                     }
 
@@ -128,20 +128,20 @@ method.check = function(candle) {
     }
     else if (this.trend.action==='long'){
 
-        if(this.trend.last_buy_period!==0 && this.trend.last_buy_period<=settings.buy_last_time) {
-            if (this.trend.previous_K > this.trend.previous_D && result.outSlowD >= result.outSlowK) {
-                // 可能还要跌？
-                log.debug("Selling incase lose money");
-                log.debug(this.trend.over_sell);
-                this.trend.action = 'short';
-                this.advice('short');
-                this.trend.last_buy_period=0;
-                this.trend.last_sell_period=0;
-            }
-            else{
-                this.trend.last_buy_period+=1;
-            }
-        }
+        // if(this.trend.last_buy_period!==0 && this.trend.last_buy_period<=settings.buy_last_time) {
+        //     if (this.trend.previous_K > this.trend.previous_D && result.outSlowD >= result.outSlowK) {
+        //         // 可能还要跌？
+        //         log.debug("Selling incase lose money");
+        //         log.debug(this.trend.over_sell);
+        //         this.trend.action = 'short';
+        //         this.advice('short');
+        //         this.trend.last_buy_period=0;
+        //         this.trend.last_sell_period=0;
+        //     }
+        //     else{
+        //         this.trend.last_buy_period+=1;
+        //     }
+        // }
 
 
         if(result.outSlowD<=settings.D_high_level && result.outSlowK<=settings.K_high_level){
